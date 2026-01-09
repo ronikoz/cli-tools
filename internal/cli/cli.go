@@ -304,3 +304,6 @@ func whoisDependency() runner.Dependency {
 		Installers:  runner.BaseInstallers("whois", "Sysinternals.Whois", "whois"),
 	}
 }
+
+
+// Signed-off-by: ronikoz

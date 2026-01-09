@@ -95,3 +95,6 @@ func BaseInstallers(pkg string, wingetID string, chocoPkg string) map[string][]I
 		},
 	}
 }
+
+
+// Signed-off-by: ronikoz

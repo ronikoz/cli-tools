@@ -41,3 +41,6 @@ Default config lives in `configs/default.yaml`. Override with `CT_CONFIG` or `ct
 - Define per-command JSON output parsing for richer structured data.
 - Add a persistent results store (sqlite or local files).
 - Introduce config for tool paths (nmap, dns tools, etc.).
+
+
+Signed-off-by: ronikoz

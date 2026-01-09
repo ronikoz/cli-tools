@@ -68,3 +68,6 @@ func (q *Queue) Stop() {
 	q.wg.Wait()
 	close(q.results)
 }
+
+
+// Signed-off-by: ronikoz

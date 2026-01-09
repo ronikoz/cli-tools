@@ -23,3 +23,6 @@ type Result struct {
 	Stderr     string    `json:"stderr"`
 	Error      string    `json:"error,omitempty"`
 }
+
+
+// Signed-off-by: ronikoz

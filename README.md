@@ -59,5 +59,11 @@ Python plugins live in `plugins/python` and are executed via the Go runner. Curr
 - Add structured parsing for plugin outputs
 - Add report generation and results storage
 
+## Contributing
+Contributions are welcome. Please see `CONTRIBUTING.md` for guidelines.
+
 ## License
-TBD
+MIT. See `LICENSE`.
+
+
+Signed-off-by: ronikoz
