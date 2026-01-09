@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/charmbracelet/bubbletea"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -35,21 +35,21 @@ func Run() error {
 		cursor: 0,
 		nextID: 3,
 	}
-	p := bubbletea.NewProgram(m)
+	p := tea.NewProgram(m)
 	_, err := p.Run()
 	return err
 }
 
-func (m model) Init() bubbletea.Cmd {
+func (m model) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case bubbletea.KeyMsg:
+	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			return m, bubbletea.Quit
+			return m, tea.Quit
 		case "j", "down":
 			if m.cursor < len(m.jobs)-1 {
 				m.cursor++
