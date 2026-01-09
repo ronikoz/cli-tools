@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"cli-tools/internal/config"
 	"cli-tools/internal/runner"
 	"cli-tools/internal/tui"
 )
@@ -19,7 +20,17 @@ type command struct {
 	run         func(args []string) error
 }
 
+var cfg config.Config
+
 func Execute(argv []string) int {
+	var err error
+	cfgPath, argv := extractConfigPath(argv)
+	cfg, err = config.Load(cfgPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "config load failed: %v\n", err)
+		return 1
+	}
+
 	cmds := commandSet()
 	if len(argv) < 2 {
 		printUsage(cmds)
@@ -88,7 +99,7 @@ func commandSet() map[string]command {
 
 func printUsage(cmds map[string]command) {
 	fmt.Fprintln(os.Stderr, "CLI Tools: multi-command security toolkit")
-	fmt.Fprintln(os.Stderr, "\nUsage: ct <command> [args]")
+	fmt.Fprintln(os.Stderr, "\nUsage: ct [--config path] <command> [args]")
 	fmt.Fprintln(os.Stderr, "\nCommands:")
 	order := []string{"scan", "dns", "osint", "recon", "web", "report", "dashboard"}
 	for _, name := range order {
@@ -111,7 +122,10 @@ func runScan(args []string) error {
 	}
 
 	script := pluginPath("scan_nmap.py")
-	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{Stream: !parsed.json})
+	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{
+		Stream: !parsed.json,
+		Python: cfg.Paths.Python,
+	})
 	result.ID = resultID("scan")
 	if parsed.json {
 		return emitJSON(result, err)
@@ -131,7 +145,10 @@ func runDNS(args []string) error {
 	}
 
 	script := pluginPath("dns_lookup.py")
-	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{Stream: !parsed.json})
+	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{
+		Stream: !parsed.json,
+		Python: cfg.Paths.Python,
+	})
 	result.ID = resultID("dns")
 	if parsed.json {
 		return emitJSON(result, err)
@@ -151,7 +168,10 @@ func runOSINT(args []string) error {
 	}
 
 	script := pluginPath("osint_domain.py")
-	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{Stream: !parsed.json})
+	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{
+		Stream: !parsed.json,
+		Python: cfg.Paths.Python,
+	})
 	result.ID = resultID("osint")
 	if parsed.json {
 		return emitJSON(result, err)
@@ -167,7 +187,10 @@ func runRecon(args []string) error {
 	}
 
 	script := pluginPath("recon_subdomains.py")
-	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{Stream: !parsed.json})
+	result, err := runner.RunPython(script, parsed.args, runner.RunOptions{
+		Stream: !parsed.json,
+		Python: cfg.Paths.Python,
+	})
 	result.ID = resultID("recon")
 	if parsed.json {
 		return emitJSON(result, err)
@@ -202,7 +225,7 @@ type parsedFlags struct {
 }
 
 func parseArgs(args []string) parsedFlags {
-	parsed := parsedFlags{args: make([]string, 0, len(args))}
+	parsed := parsedFlags{args: make([]string, 0, len(args)), json: cfg.Output.JSON}
 	for _, arg := range args {
 		if arg == "--json" {
 			parsed.json = true
@@ -224,6 +247,22 @@ func emitJSON(result runner.Result, runErr error) error {
 
 func resultID(prefix string) string {
 	return fmt.Sprintf("%s-%d", prefix, time.Now().UnixNano())
+}
+
+func extractConfigPath(argv []string) (string, []string) {
+	var cfgPath string
+	filtered := make([]string, 0, len(argv))
+	for i := 0; i < len(argv); i++ {
+		if argv[i] == "--config" || argv[i] == "-c" {
+			if i+1 < len(argv) {
+				cfgPath = argv[i+1]
+				i++
+				continue
+			}
+		}
+		filtered = append(filtered, argv[i])
+	}
+	return cfgPath, filtered
 }
 
 func nmapDependency() runner.Dependency {

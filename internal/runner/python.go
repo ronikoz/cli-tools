@@ -14,11 +14,15 @@ const defaultPython = "python3"
 
 type RunOptions struct {
 	Stream bool
+	Python string
 }
 
 // RunPython executes a python plugin script and streams output to the console.
 func RunPython(scriptPath string, args []string, opts RunOptions) (Result, error) {
-	python := os.Getenv("CT_PYTHON")
+	python := opts.Python
+	if python == "" {
+		python = os.Getenv("CT_PYTHON")
+	}
 	if python == "" {
 		python = defaultPython
 	}

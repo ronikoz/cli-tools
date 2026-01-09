@@ -1,0 +1,10 @@
+concurrency: 4
+timeouts:
+  command_seconds: 120
+output:
+  json: false
+paths:
+  python: python3
+  nmap: nmap
+  nslookup: nslookup
+  whois: whois
